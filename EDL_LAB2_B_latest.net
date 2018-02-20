@@ -1,0 +1,49 @@
+* E:\EDL\Lab 2\EDL_LAB2_B_latest.asc
+VDC dc 0 5
+XX1 dc 0 ENC w dc_motor_model
+R1 VCC trig 1k
+D1 trig VCC 1N4148
+C1 ENC trig 4.7n
+XU2 0 trig 555_out VCC N002 N001 N001 VCC NE555
+R2 VCC N001 6.8k
+C2 N001 0 .1µ
+C4 N002 0 0.1µF
+VCC VCC 0 5
+C5 VCC 0 0.1µ
+C6 VCC 0 .1µ
+C7 VCC 0 47µ
+R3 pwm_buffered Speed 18k
+C3 Speed 0 .1µ
+XU1 555_out N003 VCC 0 pwm_buffered level.2 Avol=1Meg GBW=3Meg Slew=2.4Meg ilimit=20m rail=0.1 Vos=0 phimargin=45 en=0 enk=0 in=0 ink=0 Rin=500Meg
+R4 0 N003 33k
+R5 VCC N003 33k
+
+* block symbol definitions
+.subckt dc_motor_model +DC -DC enc omega
+Aenc N002 0 0 0 0 p 0 0 SCHMITT Vt=0.5 Vh=0.5 td=10n
+Bp 0 N002 I=kenc*abs(v(omega))*(V(p)-0.5)
+Cenc N002 0 1m
+LM +DC N001 65µH
+RM N001 emf {RM}
+Bemf emf -DC V=k*V(omega)
+B§Itorque 0 omega I=k*I(Bemf)
+C_Jinertia omega 0 {J}
+R_Bfriction omega 0 {1/B}
+Benc N003 0 V=5*V(p)
+B§I_load_torque_int omega 0 I=sgn(v(omega))*min(Tint,0.1*abs(v(omega)))
+R1 enc N003 220
+.param kenc=0.49
+.param RM=2.02
+.param k = 0.9
+.param J = 1.03m
+.param B = 5.94m
+.param Tint = 0.0407
+.ends dc_motor_model
+
+.model D D
+.lib C:\Users\kwat1\Documents\LTspiceXVII\lib\cmp\standard.dio
+.tran 0 .05 0
+.lib NE555.sub
+.lib UniversalOpamps2.sub
+.backanno
+.end
